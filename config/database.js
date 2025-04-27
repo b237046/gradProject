@@ -1,15 +1,18 @@
 const mysql = require('mysql2/promise');
+require("dotenv").config();
 
-const dbConfig = {
-  host: process.env.DB_HOST || process.env.RAILWAY_MYSQL_HOST,
-  user: process.env.DB_USER || process.env.RAILWAY_MYSQL_USER,
-  password: process.env.DB_PASSWORD || process.env.RAILWAY_MYSQL_PASSWORD,
-  database: process.env.DB_NAME || process.env.RAILWAY_MYSQL_DATABASE,
-  port: process.env.DB_PORT || process.env.RAILWAY_MYSQL_PORT || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-};
+const urlDB = 'mysql://${process.env.MYSQLUSER}:${process.env.MYSQLPASSWORD}@${process.env.MYSQLHOST}:${process.env.MYSQLPORT}/${process.env.MYSQLDATABASE}';
+
+// const dbConfig = {
+//   host: process.env.DB_HOST || process.env.RAILWAY_MYSQL_HOST,
+//   user: process.env.DB_USER || process.env.RAILWAY_MYSQL_USER,
+//   password: process.env.DB_PASSWORD || process.env.RAILWAY_MYSQL_PASSWORD,
+//   database: process.env.DB_NAME || process.env.RAILWAY_MYSQL_DATABASE,
+//   port: process.env.DB_PORT || process.env.RAILWAY_MYSQL_PORT || 3306,
+//   waitForConnections: true,
+//   connectionLimit: 10,
+//   queueLimit: 0
+// };
 
 // Create a pool for database connections
 const pool = mysql.createPool(dbConfig);
