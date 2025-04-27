@@ -3,6 +3,8 @@ require("dotenv").config();
 
 const urlDB = 'mysql://${process.env.MYSQLUSER}:${process.env.MYSQLPASSWORD}@${process.env.MYSQLHOST}:${process.env.MYSQLPORT}/${process.env.MYSQLDATABASE}';
 
+const pool = mysql.createConnection(urlDB);
+
 // const dbConfig = {
 //   host: process.env.DB_HOST || process.env.RAILWAY_MYSQL_HOST,
 //   user: process.env.DB_USER || process.env.RAILWAY_MYSQL_USER,
@@ -14,8 +16,8 @@ const urlDB = 'mysql://${process.env.MYSQLUSER}:${process.env.MYSQLPASSWORD}@${p
 //   queueLimit: 0
 // };
 
-// Create a pool for database connections
-const pool = mysql.createPool(dbConfig);
+//// Create a pool for database connections
+// const pool = mysql.createPool(dbConfig);
 
 // Initialize database tables
 const initDb = async () => {
