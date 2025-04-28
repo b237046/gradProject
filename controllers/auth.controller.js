@@ -6,7 +6,7 @@ const { generateVerificationCode } = require('../utils/helpers');
 // Register a new user
 exports.register = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -23,6 +23,7 @@ exports.register = async (req, res, next) => {
 
     // Create new user
     const newUser = new User({
+      name,
       email,
       password,
       verification_code: verificationCode,
@@ -113,14 +114,14 @@ exports.login = async (req, res, next) => {
       return res.status(403).json({ message: 'Email not verified. Please verify your email to log in.' });
     }
 
-    // Check password (plain text comparison)
-    if (user.password !== password) {
+    // Check password
+    if (password !== user.password) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
@@ -129,6 +130,7 @@ exports.login = async (req, res, next) => {
       message: 'Login successful',
       user: {
         id: user.id,
+        name: user.name,
         email: user.email
       },
       token

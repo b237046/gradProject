@@ -53,7 +53,7 @@ The system uses a simple user table with the following structure:
 
 - `id` - Primary key
 - `email` - User's email (unique)
-- `password` - Hashed password
+- `password` - password
 - `is_verified` - Boolean indicating verification status
 - `verification_code` - 6-digit verification code
 - `code_expiry` - Expiration time for the verification code

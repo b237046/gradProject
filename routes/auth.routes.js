@@ -10,7 +10,13 @@ const router = express.Router();
 router.post(
   '/register',
   [
-    body('email').isEmail().withMessage('Please provide a valid email'),
+    body('name')
+      .trim()
+      .isLength({ min: 2 })
+      .withMessage('Name must be at least 2 characters long'),
+    body('email')
+      .isEmail()
+      .withMessage('Please provide a valid email'),
     body('password')
       .isLength({ min: 8 })
       .withMessage('Password must be at least 8 characters long')

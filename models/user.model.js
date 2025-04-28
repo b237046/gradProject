@@ -2,6 +2,7 @@ const db = require('../config/database');
 
 class User {
   constructor(userData) {
+    this.name = userData.name;
     this.email = userData.email;
     this.password = userData.password;
     this.is_verified = userData.is_verified || false;
@@ -12,8 +13,8 @@ class User {
   async save() {
     try {
       const [result] = await db.query(
-        'INSERT INTO users (email, password, verification_code, code_expiry) VALUES (?, ?, ?, ?)',
-        [this.email, this.password, this.verification_code, this.code_expiry]
+        'INSERT INTO users (name, email, password, verification_code, code_expiry) VALUES (?, ?, ?, ?, ?)',
+        [this.name, this.email, this.password, this.verification_code, this.code_expiry]
       );
 
       return result.insertId;
@@ -57,7 +58,7 @@ class User {
 
   static async getUserById(id) {
     try {
-      const [rows] = await db.query('SELECT id, email, is_verified, created_at FROM users WHERE id = ?', [id]);
+      const [rows] = await db.query('SELECT id, name, email, is_verified, created_at FROM users WHERE id = ?', [id]);
       return rows.length ? rows[0] : null;
     } catch (error) {
       throw error;

@@ -15,26 +15,42 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection
-db.connect()
-  .then(() => {
-    console.log('Connected to MySQL database');
-  })
+// Database connection with retry logic
+const connectWithRetry = async (retries = 5, delay = 5000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await db.connect();
+      console.log('Connected to MySQL database');
+      return;
+    } catch (err) {
+      console.error(`Database connection attempt ${i + 1} failed:`, err.message);
+      if (i === retries - 1) {
+        console.error('All database connection attempts failed. Exiting...');
+        process.exit(1);
+      }
+      console.log(`Retrying in ${delay/1000} seconds...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+};
+
+// Connect to database with retry
+connectWithRetry()
   .catch((err) => {
-    console.error('Database connection error:', err.message);
+    console.error('Fatal database connection error:', err.message);
     process.exit(1);
   });
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
 
 // Default route
 app.get('/', (req, res) => {
   res.send('Authentication API is running');
 });
 
-// Error handler
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+
+// Error handler middleware
 app.use(errorHandler);
 
 // Start server
