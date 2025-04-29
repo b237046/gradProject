@@ -9,8 +9,6 @@ A Node.js and MySQL-based authentication system with email verification.
 - Secure login after verification
 - JWT token-based authentication
 - Rate limiting for security
-- Comprehensive error handling
-- Modular codebase architecture
 
 ## Prerequisites
 
@@ -52,6 +50,7 @@ A Node.js and MySQL-based authentication system with email verification.
 The system uses a simple user table with the following structure:
 
 - `id` - Primary key
+- `name` - User's name 
 - `email` - User's email (unique)
 - `password` - password
 - `is_verified` - Boolean indicating verification status
