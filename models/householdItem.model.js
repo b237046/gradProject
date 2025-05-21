@@ -1,7 +1,7 @@
 const db = require('../config/database');
 
 class HouseholdItem {
-  static async addHouseholdItem(householdId, itemId, location = 'in_house', itemPhoto = null, price = null, expirationDate = null) {
+  static async addHouseholdItem(householdId, itemId, location = 'in_house', itemPhoto, price = null, expirationDate = null) {
     try {
       const [result] = await db.query(
         `INSERT INTO household_items 
