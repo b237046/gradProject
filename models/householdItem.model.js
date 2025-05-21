@@ -79,6 +79,74 @@ class HouseholdItem {
       throw error;
     }
   }
+
+    static async getTopHouseholdItemsByTotalPurchasePrice(householdId) {
+    try {
+      const [rows] = await db.query(
+        `SELECT i.item_name, hi.total_purchase_price
+        FROM household_items hi
+        JOIN items i ON hi.item_id = i.item_id
+        WHERE hi.household_id = ?
+        ORDER BY hi.total_purchase_price DESC
+        LIMIT 5`,
+        [householdId]
+      );
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getBottomHouseholdItemsByTotalPurchasePrice(householdId) {
+    try {
+      const [rows] = await db.query(
+        `SELECT i.item_name, hi.total_purchase_price
+        FROM household_items hi
+        JOIN items i ON hi.item_id = i.item_id
+        WHERE hi.household_id = ?
+        ORDER BY hi.total_purchase_price ASC
+        LIMIT 5`,
+        [householdId]
+      );
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getTopHouseholdItemsByPurchaseCounter(householdId) {
+    try {
+      const [rows] = await db.query(
+        `SELECT i.item_name, hi.purchase_counter
+        FROM household_items hi
+        JOIN items i ON hi.item_id = i.item_id
+        WHERE hi.household_id = ?
+        ORDER BY hi.purchase_counter DESC
+        LIMIT 5`,
+        [householdId]
+      );
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  static async getBottomHouseholdItemsByPurchaseCounter(householdId) {
+    try {
+      const [rows] = await db.query(
+        `SELECT i.item_name, hi.purchase_counter
+        FROM household_items hi
+        JOIN items i ON hi.item_id = i.item_id
+        WHERE hi.household_id = ?
+        ORDER BY hi.purchase_counter ASC
+        LIMIT 5`,
+        [householdId]
+      );
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = HouseholdItem;

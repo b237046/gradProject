@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user.routes');
 const itemRoutes = require('./routes/item.routes');
 const householdRoutes = require('./routes/household.routes');
 const householdItemRoutes = require('./routes/householdItem.routes');
+const statisticsRoutes = require('./routes/statistics.routes');
 const errorHandler = require('./middlewares/errorHandler');
 
 // Initialize express app
@@ -55,6 +56,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/households', householdRoutes);
 app.use('/api/household-items', householdItemRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Error handler middleware
 app.use(errorHandler);
