@@ -49,4 +49,14 @@ router.get(
     statisticsController.getBottomHouseholdItemsByPurchaseCounter
 );
 
+router.get(
+  '/total_money_spent',
+  authenticateJWT,
+  [
+    query('householdId').isInt().withMessage('Valid household ID is required')
+  ],
+  validateRequest,
+  statisticsController.getTotalMoneySpent
+)
+
 module.exports = router;

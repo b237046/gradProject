@@ -1,13 +1,13 @@
 const db = require('../config/database');
 
 class HouseholdItem {
-  static async addHouseholdItem(householdId, itemId, location = 'in_house', itemPhoto, price = null, expirationDate = null) {
+  static async addHouseholdItem(householdId, itemId, location = 'in_house', category, itemPhoto, price, expirationDate = null) {
     try {
       const [result] = await db.query(
         `INSERT INTO household_items 
-         (household_id, item_id, location, item_photo, price, total_purchase_price, expiration_date, purchase_counter) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
-        [householdId, itemId, location, itemPhoto, price, price, expirationDate]
+         (household_id, item_id, location, category, item_photo, expiration_date, price, total_purchase_price, purchase_counter) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+        [householdId, itemId, location, category, itemPhoto, expirationDate, price, price]
       );
       return result.insertId;
     } catch (error) {
@@ -143,6 +143,20 @@ class HouseholdItem {
         [householdId]
       );
       return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getTotalMoneySpent(householdId) {
+    try {
+      const [rows] = await db.query(
+        `SELECT SUM(total_purchase_price) AS total_money_spent
+        FROM household_items
+        WHERE household_id = ?`,
+        [householdId]
+      );
+      return rows[0].total_money_spent;
     } catch (error) {
       throw error;
     }

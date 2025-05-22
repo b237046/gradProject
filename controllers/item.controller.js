@@ -2,11 +2,22 @@ const Item = require('../models/item.model');
 const HouseholdItem = require('../models/householdItem.model');
 const Household = require('../models/household.model');
 
-exports.searchItems = async (req, res, next) => {
+exports.searchItemsByName = async (req, res, next) => {
   try {
-    const { keyword } = req.body;
+    const { name } = req.body;
     
-    const items = await Item.searchItems(keyword.trim());
+    const items = await Item.searchItemsByName(name.trim());
+    res.json({ items });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.searchItemsByBarcode = async (req, res, next) => {
+  try {
+    const { barcode } = req.body;
+    
+    const items = await Item.searchItemsByBarcode(barcode.trim());
     res.json({ items });
   } catch (error) {
     next(error);
@@ -22,7 +33,9 @@ exports.createAndAddItem = async (req, res, next) => {
       location,
       price,
       expirationDate,
-      householdId
+      householdId,
+      barcode,
+      category
     } = req.body;
     
     // Verify user is member of household
@@ -32,13 +45,14 @@ exports.createAndAddItem = async (req, res, next) => {
     }
 
     // Create new item
-    const itemId = await Item.createItem(itemName, itemPhoto);
+    const itemId = await Item.createItem(itemName, category, itemPhoto, barcode);
 
     // Add item to household
     const householdItemId = await HouseholdItem.addHouseholdItem(
       householdId,
       itemId,
       location,
+      category,
       itemPhoto,
       price,
       expirationDate
@@ -53,7 +67,7 @@ exports.createAndAddItem = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ message: 'An item with this name already exists' });
+      return res.status(409).json({ message: 'An item with this name or barcode already exists' });
     }
     next(error);
   }

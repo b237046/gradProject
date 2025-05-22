@@ -40,9 +40,9 @@ const initDb = async () => {
       )
     `);
 
-    // Create users_households table
+    // Create household_users table
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS users_households (
+      CREATE TABLE IF NOT EXISTS household_users (
         user_id INT NOT NULL,
         household_id INT NOT NULL,
         PRIMARY KEY (user_id, household_id),
@@ -56,7 +56,15 @@ const initDb = async () => {
       CREATE TABLE IF NOT EXISTS items (
         item_id INT AUTO_INCREMENT PRIMARY KEY,
         item_name VARCHAR(255) NOT NULL UNIQUE,
-        item_photo VARCHAR(1024)
+        category ENUM(
+          'Fruits & Vegetables',
+          'Dairy & Eggs',
+          'Meat & Seafood',
+          'Canned & Jarred',
+          'Dry Goods & Pasta',
+          'Others') NOT NULL,
+        item_photo VARCHAR(1024),
+        barcode VARCHAR(255) UNIQUE
       )
     `);
 
@@ -67,10 +75,17 @@ const initDb = async () => {
         household_id INT NOT NULL,
         item_id INT NOT NULL,
         location ENUM('in_house', 'to_buy') DEFAULT 'in_house',
+        category ENUM(
+          'Fruits & Vegetables',
+          'Dairy & Eggs',
+          'Meat & Seafood',
+          'Canned & Jarred',
+          'Dry Goods & Pasta',
+          'Others') NOT NULL,
         item_photo VARCHAR(1024),
+        expiration_date DATE,
         price DECIMAL(10,2) DEFAULT 0,
         total_purchase_price DECIMAL(10,2) DEFAULT 0,
-        expiration_date DATE,
         purchase_counter INT DEFAULT 0,
         FOREIGN KEY (household_id) REFERENCES households(household_id) ON DELETE CASCADE,
         FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE

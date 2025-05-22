@@ -23,6 +23,7 @@ exports.addExistingItem = async (req, res, next) => {
       householdId,
       itemId,
       location,
+      item.category,
       item.item_photo, 
       price,
       expirationDate

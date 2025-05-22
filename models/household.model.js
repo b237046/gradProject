@@ -18,7 +18,7 @@ class Household {
   static async addMember(householdId, userId) {
     try {
       await db.query(
-        'INSERT INTO users_households (household_id, user_id) VALUES (?, ?)',
+        'INSERT INTO household_users (household_id, user_id) VALUES (?, ?)',
         [householdId, userId]
       );
       return true;
@@ -55,7 +55,7 @@ class Household {
     try {
       const [rows] = await db.query(
         `SELECT h.* FROM households h
-         JOIN users_households uh ON h.household_id = uh.household_id
+         JOIN household_users uh ON h.household_id = uh.household_id
          WHERE uh.user_id = ?`,
         [userId]
       );
@@ -68,7 +68,7 @@ class Household {
   static async verifyMembership(userId, householdId) {
     try {
       const [rows] = await db.query(
-        'SELECT 1 FROM users_households WHERE user_id = ? AND household_id = ?',
+        'SELECT 1 FROM household_users WHERE user_id = ? AND household_id = ?',
         [userId, householdId]
       );
       return rows.length > 0;

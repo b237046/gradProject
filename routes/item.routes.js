@@ -7,13 +7,23 @@ const authenticateJWT = require('../middlewares/authenticateJWT');
 const router = express.Router();
 
 router.post(
-  '/search',
+  '/search-name',
   authenticateJWT,
   [
-    body('keyword').trim()
+    body('name').trim()
   ],
   validateRequest,
-  itemController.searchItems
+  itemController.searchItemsByName
+);
+
+router.post(
+  '/search-barcode',
+  authenticateJWT,
+  [
+    body('barcode').trim().isString().withMessage('Barcode must be a string')
+  ],
+  validateRequest,
+  itemController.searchItemsByBarcode
 );
 
 router.post(
@@ -28,7 +38,16 @@ router.post(
     body('householdId').isInt().withMessage('Valid household ID is required'),
     body('location').isIn(['in_house']).withMessage('Location must be "in_house"'),
     body('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
-    body('expirationDate').optional().isDate().withMessage('Invalid expiration date')
+    body('expirationDate').optional().isDate().withMessage('Invalid expiration date'),
+    body('barcode').optional().isString().withMessage('Barcode must be a string'),
+    body('category').isIn([
+      'Fruits & Vegetables',
+      'Dairy & Eggs',
+      'Meat & Seafood',
+      'Canned & Jarred',
+      'Dry Goods & Pasta',
+      'Others'
+    ]).withMessage('Invalid category')
   ],
   validateRequest,
   itemController.createAndAddItem

@@ -94,3 +94,26 @@ exports.getBottomHouseholdItemsByPurchaseCounter = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.getTotalMoneySpent = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { householdId } = req.query;
+
+        // Verify user is member of household
+        const isMember = await Household.verifyMembership(userId, householdId);
+        if (!isMember) {
+            return res.status(403).json({ message: 'You are not a member of this household' });
+        }
+
+        // Get total money spent
+        const totalMoneySpent = await HouseholdItem.getTotalMoneySpent(householdId);
+    
+        res.status(200).json({
+            message: 'Total money spent retrieved successfully',
+            totalMoneySpent
+        });
+    } catch (error) {
+        next(error);
+    }
+};

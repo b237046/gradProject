@@ -1,13 +1,13 @@
 const db = require('../config/database');
 
 class Item {
-  static async searchItems(keyword) {
+  static async searchItemsByName(name) {
     try {
       const [rows] = await db.query(
         `SELECT * FROM items 
          WHERE item_name LIKE ? 
          ORDER BY item_name ASC`,
-        [`%${keyword}%`]
+        [`%${name}%`]
       );
       return rows;
     } catch (error) {
@@ -15,11 +15,25 @@ class Item {
     }
   }
 
-  static async createItem(itemName, itemPhoto = null) {
+  static async searchItemsByBarcode(barcode) {
+    try {
+      const [rows] = await db.query(
+        `SELECT * FROM items 
+         WHERE barcode = ? 
+         ORDER BY item_name ASC`,
+        [barcode]
+      );
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async createItem(itemName, category, itemPhoto = null, barcode = null) {
     try {
       const [result] = await db.query(
-        'INSERT INTO items (item_name, item_photo) VALUES (?, ?)',
-        [itemName, itemPhoto]
+        'INSERT INTO items (item_name, category, item_photo, barcode) VALUES (?, ?, ?, ?)',
+        [itemName, category, itemPhoto, barcode]
       );
       return result.insertId;
     } catch (error) {
