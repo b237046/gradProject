@@ -55,4 +55,29 @@ router.get(
   householdItemController.getHouseholdItems
 );
 
+router.post(
+  '/delete-household-item',
+  authenticateJWT,
+  [
+    body('householdItemId').isInt().withMessage('Valid household item ID is required'),
+  ],
+  validateRequest,
+  householdItemController.deleteHouseholdItem
+);
+
+router.post(
+  '/edit-household-item',
+  authenticateJWT,
+  [
+    body('householdItemId').isInt().withMessage('Valid household item ID is required'),
+    body('itemName').optional().isString().withMessage('Item name must be a string'),
+    body('category').optional().isString().withMessage('Category must be a string'),
+    body('itemPhoto').optional().isString().withMessage('Item photo must be a string'),
+    body('expirationDate').optional().isDate().withMessage('Invalid expiration date'),
+    body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a positive number'),
+  ],
+  validateRequest,
+  householdItemController.editHouseholdItem
+);
+
 module.exports = router;

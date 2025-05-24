@@ -23,8 +23,6 @@ exports.addExistingItem = async (req, res, next) => {
       householdId,
       itemId,
       location,
-      item.category,
-      item.item_photo, 
       price,
       expirationDate
     );
@@ -123,6 +121,75 @@ exports.getHouseholdItems = async (req, res, next) => {
 
     const items = await HouseholdItem.getHouseholdItems(householdId, location);
     res.json({ items });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteHouseholdItem = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { householdItemId } = req.body;
+    
+    // Verify user is member of household
+    const item = await HouseholdItem.getHouseholdItemById(householdItemId);
+    if (!item) {
+      return res.status(404).json({ message: 'Household item not found' });
+    }
+
+    const isMember = await Household.verifyMembership(userId, item.household_id);
+    if (!isMember) {
+      return res.status(403).json({ message: 'You are not a member of this household' });
+    }
+
+    const success = await HouseholdItem.deleteHouseholdItem(householdItemId);
+    
+    if (!success) {
+      return res.status(404).json({ message: 'Failed to delete item' });
+    }
+    
+    res.json({ message: 'Household item deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.editHouseholdItem = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { householdItemId, itemName, category, itemPhoto, expirationDate, price } = req.body;
+
+    // Verify user is member of household
+    const item = await HouseholdItem.getHouseholdItemById(householdItemId);
+    if (!item) {
+      return res.status(404).json({ message: 'Household item not found' });
+    }
+
+    const isMember = await Household.verifyMembership(userId, item.household_id);
+    if (!isMember) {
+      return res.status(403).json({ message: 'You are not a member of this household' });
+    }
+
+    const success1 = await Item.editItem(
+      item.item_id,
+      itemName,
+      category,
+      itemPhoto
+    );
+
+
+    const success2 = await HouseholdItem.editHouseholdItem(
+      householdItemId, 
+      expirationDate,
+      price
+    );
+
+
+    if (!success1 || !success2) {
+      return res.status(404).json({ message: 'Failed to edit item' });
+    }
+    
+    res.json({ message: 'Household item edited successfully' });
   } catch (error) {
     next(error);
   }

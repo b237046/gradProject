@@ -4,7 +4,16 @@ module.exports = (err, req, res, next) => {
   
   // Database errors
   if (err.code === 'ER_DUP_ENTRY') {
-    return res.status(409).json({ message: 'This email is already registered' });
+    if (err.sqlMessage.includes('email')) {
+      // Duplicate email error
+      return res.status(409).json({ message: 'This email is already registered' });
+    }
+    if (err.sqlMessage.includes('item_name')) {
+      // Duplicate item name error
+      return res.status(409).json({ message: 'This item name already exists in the household' 
+         
+      });
+    }
   }
   
   // JWT errors

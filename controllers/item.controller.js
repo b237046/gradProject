@@ -52,8 +52,6 @@ exports.createAndAddItem = async (req, res, next) => {
       householdId,
       itemId,
       location,
-      category,
-      itemPhoto,
       price,
       expirationDate
     );

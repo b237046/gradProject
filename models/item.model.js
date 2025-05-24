@@ -29,7 +29,7 @@ class Item {
     }
   }
 
-  static async createItem(itemName, category, itemPhoto = null, barcode = null) {
+  static async createItem(itemName, category, itemPhoto, barcode = null) {
     try {
       const [result] = await db.query(
         'INSERT INTO items (item_name, category, item_photo, barcode) VALUES (?, ?, ?, ?)',
@@ -45,6 +45,35 @@ class Item {
     try {
       const [rows] = await db.query('SELECT * FROM items WHERE item_id = ?', [itemId]);
       return rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async editItem(itemId, itemName, category, itemPhoto) {
+    try {
+
+        const [existingResult] = await db.query(
+          'SELECT item_name, category, item_photo FROM items WHERE item_id = ?',
+          [itemId]
+        );
+
+        if (existingResult.length === 0) {
+          throw new Error('Item not found.');
+        }
+  
+        const existing = existingResult[0];
+  
+        // Use existing values if not provided
+        const finalItemName = itemName ?? existing.item_name;
+        const finalCategory = category ?? existing.category;
+        const finalItemPhoto = itemPhoto ?? existing.item_photo;
+
+      const [result] = await db.query(
+        `UPDATE items SET item_name = ?, category = ?, item_photo = ? WHERE item_id = ?`,
+        [finalItemName, finalCategory, finalItemPhoto, itemId]
+      );
+      return result.affectedRows > 0;
     } catch (error) {
       throw error;
     }

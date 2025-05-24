@@ -1,13 +1,13 @@
 const db = require('../config/database');
 
 class HouseholdItem {
-  static async addHouseholdItem(householdId, itemId, location = 'in_house', category, itemPhoto, price, expirationDate = null) {
+  static async addHouseholdItem(householdId, itemId, location = 'in_house', price, expirationDate = null) {
     try {
       const [result] = await db.query(
         `INSERT INTO household_items 
-         (household_id, item_id, location, category, item_photo, expiration_date, price, total_purchase_price, purchase_counter) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-        [householdId, itemId, location, category, itemPhoto, expirationDate, price, price]
+         (household_id, item_id, location, expiration_date, price, total_purchase_price, purchase_counter) 
+         VALUES (?, ?, ?, ?, ?, ?, 1)`,
+        [householdId, itemId, location, expirationDate, price, price]
       );
       return result.insertId;
     } catch (error) {
@@ -60,7 +60,7 @@ class HouseholdItem {
   static async getHouseholdItems(householdId, location = null) {
     try {
       let query = `
-        SELECT hi.*, i.item_name, i.item_photo as global_photo
+        SELECT hi.*, i.item_name, i.item_photo, i.category
         FROM household_items hi
         JOIN items i ON hi.item_id = i.item_id
         WHERE hi.household_id = ?
@@ -157,6 +157,51 @@ class HouseholdItem {
         [householdId]
       );
       return rows[0].total_money_spent;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteHouseholdItem(householdItemId) {
+    try {
+      const [result] = await db.query(
+        'DELETE FROM household_items WHERE household_item_id = ?',
+        [householdItemId]
+      );
+      return result.affectedRows > 0;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async editHouseholdItem(householdItemId, expirationDate, price) {
+    try {
+      // Get existing item
+      const [existingResult] = await db.query(
+        'SELECT expiration_date, price AS old_price, total_purchase_price FROM household_items WHERE household_item_id = ?',
+        [householdItemId]
+      );
+
+      if (existingResult.length === 0) {
+        throw new Error('Household item not found.');
+      }
+
+      const existing = existingResult[0];
+
+      // Use existing values if not provided
+      const finalExpirationDate = expirationDate ?? existing.expiration_date;
+      const finalPrice = price ?? existing.old_price;
+
+      const newTotalPurchasePrice = existing.total_purchase_price - existing.old_price + finalPrice;
+
+      const [result] = await db.query(
+        `UPDATE household_items 
+        SET expiration_date = ?, price = ?, total_purchase_price = ?
+        WHERE household_item_id = ?`,
+        [finalExpirationDate, finalPrice, newTotalPurchasePrice, householdItemId]
+      );
+
+      return result.affectedRows > 0;
     } catch (error) {
       throw error;
     }
