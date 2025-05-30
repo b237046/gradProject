@@ -26,7 +26,11 @@ exports.addExistingItem = async (req, res, next) => {
       price,
       expirationDate
     );
-    
+
+    if (!householdItemId) {
+      return res.status(400).json({ message: 'Failed to add item to household, Item already exists in the household' });
+    }
+
     res.status(201).json({
       message: 'Item added to household successfully',
       householdItemId,
@@ -190,6 +194,27 @@ exports.editHouseholdItem = async (req, res, next) => {
     }
     
     res.json({ message: 'Household item edited successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllToBuyItemsUserIsPartOfItsHousehold = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const queryUserId = parseInt(req.query.userId, 10);
+
+    if (userId !== queryUserId) {
+      return res.status(403).json({ message: 'You can only access your own items' });
+    }
+
+    // Get all households the user is a member of
+    const householdIds = await Household.getAllUserHouseholds(userId);
+
+    // Get all items with location 'to_buy' in these households
+    const items = await HouseholdItem.getAllToBuyItemsInHouseholds(householdIds);
+
+    res.json({ items });
   } catch (error) {
     next(error);
   }

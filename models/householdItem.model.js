@@ -1,8 +1,19 @@
 const db = require('../config/database');
 
 class HouseholdItem {
-  static async addHouseholdItem(householdId, itemId, location = 'in_house', price, expirationDate = null) {
+  static async addHouseholdItem(householdId, itemId, location = 'in_house', price, expirationDate = null, itemName) {
     try {
+      // Check if the item already exists in the household
+      const [existingItem] = await db.query(
+        'SELECT * FROM household_items WHERE household_id = ? AND item_id = ?',
+        [householdId, itemId]
+      );
+      if (existingItem.length > 0) {
+        // stop execution 
+        return 0;
+      }
+
+      // If it doesn't exist, insert the new household item
       const [result] = await db.query(
         `INSERT INTO household_items 
          (household_id, item_id, location, expiration_date, price, total_purchase_price, purchase_counter) 
@@ -202,6 +213,24 @@ class HouseholdItem {
       );
 
       return result.affectedRows > 0;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  static async getAllToBuyItemsInHouseholds(householdIdObjects) {
+    try {
+      // Extract raw IDs from objects
+      const householdIds = householdIdObjects.map(h => h.household_id);
+      const placeholders = householdIds.map(() => '?').join(', ');
+      
+      const query = `SELECT i.item_name, i.item_photo
+      FROM household_items hi
+      JOIN items i ON hi.item_id = i.item_id
+      WHERE hi.household_id IN (${placeholders}) AND hi.location = 'to_buy'`;
+
+      const [rows] = await db.query(query, householdIds);
+      return rows;
     } catch (error) {
       throw error;
     }

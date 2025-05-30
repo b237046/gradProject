@@ -55,8 +55,21 @@ class Household {
     try {
       const [rows] = await db.query(
         `SELECT h.* FROM households h
-         JOIN household_users uh ON h.household_id = uh.household_id
-         WHERE uh.user_id = ?`,
+         JOIN household_users hu ON h.household_id = hu.household_id
+         WHERE hu.user_id = ?`,
+        [userId]
+      );
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getAllUserHouseholds(userId) {
+    try {
+      const [rows] = await db.query(
+        `SELECT DISTINCT household_id FROM household_users
+         WHERE user_id = ?`,
         [userId]
       );
       return rows;

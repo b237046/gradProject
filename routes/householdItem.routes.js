@@ -55,6 +55,16 @@ router.get(
   householdItemController.getHouseholdItems
 );
 
+router.get(
+  '/all-to-buy-itmes-in-all-households-user-in',
+  authenticateJWT,
+  [
+    query('userId').isInt().withMessage('Valid user ID is required'),
+  ],
+  validateRequest,
+  householdItemController.getAllToBuyItemsUserIsPartOfItsHousehold
+);
+
 router.post(
   '/delete-household-item',
   authenticateJWT,
